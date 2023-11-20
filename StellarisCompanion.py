@@ -6,36 +6,38 @@ import re
 import dash
 from dash import Dash, dcc, html, Input, Output, callback
 import plotly
+from plotly.subplots import make_subplots
 from collections import deque
 
 global LOG_FILE_PATH
 LOG_FILE_PATH = os.environ['USERPROFILE'] + "\\Documents\\Paradox Interactive\\Stellaris\\logs\\game.log"
 
-app = Dash(__name__, external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css'])
+app = Dash(__name__,)
 app.layout = html.Div(
 	html.Div([
 		html.H4('Stellaris Live Data'),
 		dcc.Graph(id='live-update-graph'),
 		dcc.Interval(
 			id='interval-component',
-			interval=1000,
+			interval=500,
 			n_intervals=0
 		)
 	])
 )
+DEQUE_MAX_LEN = 24
 data = { # DAYS_PASSED will be X, others will be Y
 		'EMPIRE_NAME': '',
-		'DAYS_PASSED': deque(maxlen=12),
-		'MINERAL_PRICE': deque(maxlen=12),
-		'FOOD_PRICE': deque(maxlen=12),
-		'CONSUMER_GOODS_PRICE': deque(maxlen=12),
-		'ALLOY_PRICE': deque(maxlen=12),
-		'MOTES_PRICE': deque(maxlen=12),
-		'CRYSTALS_PRICE': deque(maxlen=12),
-		'GAS_PRICE': deque(maxlen=12),
-		'DARK_MATTER_PRICE': deque(maxlen=12),
-		'ZRO_PRICE': deque(maxlen=12),
-		'LIVING_METAL_PRICE': deque(maxlen=12),
+		'DAYS_PASSED': deque(maxlen=DEQUE_MAX_LEN),
+		'MINERAL_PRICE': deque(maxlen=DEQUE_MAX_LEN),
+		'FOOD_PRICE': deque(maxlen=DEQUE_MAX_LEN),
+		'CONSUMER_GOODS_PRICE': deque(maxlen=DEQUE_MAX_LEN),
+		'ALLOY_PRICE': deque(maxlen=DEQUE_MAX_LEN),
+		'MOTES_PRICE': deque(maxlen=DEQUE_MAX_LEN),
+		'CRYSTALS_PRICE': deque(maxlen=DEQUE_MAX_LEN),
+		'GAS_PRICE': deque(maxlen=DEQUE_MAX_LEN),
+		'DARK_MATTER_PRICE': deque(maxlen=DEQUE_MAX_LEN),
+		'ZRO_PRICE': deque(maxlen=DEQUE_MAX_LEN),
+		'LIVING_METAL_PRICE': deque(maxlen=DEQUE_MAX_LEN),
 	}
 def readQueue(queue):
 	return queue.get()
@@ -60,21 +62,21 @@ def update_graph_live(n):
 		data['LIVING_METAL_PRICE'].append(float(dataList[11]))
 	
 	print(data)
-	fig = plotly.subplots.make_subplots(rows=2, cols=1, vertical_spacing=0.2)
+	fig = make_subplots(rows=2, cols=1)
 	fig['layout']['margin'] = {
 		'l': 30, 'r': 10, 'b': 30, 't': 10
 	}
 	fig['layout']['legend'] = {'x': 0, 'y': 1, 'xanchor':'left'}
 	fig.append_trace({
-		'x': data['DAYS_PASSED'],
-		'y': data['MINERAL_PRICE'],
+		'x': list(data['DAYS_PASSED']),
+		'y': list(data['MINERAL_PRICE']),
 		'name': 'Minerals',
 		'mode': 'lines+markers',
 		'type': 'scatter'
 	}, 1, 1)
 	fig.append_trace({
-		'x': data['DAYS_PASSED'],
-		'y': data['FOOD_PRICE'],
+		'x': list(data['DAYS_PASSED']),
+		'y': list(data['FOOD_PRICE']),
 		'name': 'Food',
 		'mode': 'lines+markers',
 		'type': 'scatter'
